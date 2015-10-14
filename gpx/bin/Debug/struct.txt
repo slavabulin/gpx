@@ -1,0 +1,7 @@
+<gpx>
+-<trk>
+--<name>
+--<trkseg>
+---<trkpt (lat, lon)>
+----<ele>
+----<time>
