@@ -60,23 +60,39 @@ namespace gpx
                 }
 
                 Dictionary<DateTime, wptType> ptdictionary = ptList.ToDictionary<wptType, DateTime>(pt => pt.time);
+                decimal minLat, maxLat, minLon, maxLon;
 
-                //посчитаем время и перемещение от каждой точки до следующей
-
-                ////Отсортируем по времени
+                //Отсортируем по времени
                 //Console.WriteLine("Сортировано по времени:");
                 //IEnumerable<wptType> list = ptList.OrderBy(pt => pt.time);
+                
                 //foreach (wptType pt in list)
                 //{
                 //    Console.WriteLine("{0}, {1} - {2}", pt.lon, pt.lat, pt.time);
                 //}
+                //Console.WriteLine(list.ElementAt(0).time.ToString());
 
                 //Console.WriteLine("Сортировано по широте:");
-                //IEnumerable<wptType> list1 = ptList.OrderBy(pt => pt.lat);
-                //foreach (wptType pt in list1)
-                //{
-                //    Console.WriteLine("{0}, {1} - {2}", pt.lon, pt.lat, pt.time);
-                //}
+                IEnumerable<wptType> list1 = ptList.OrderBy(pt => pt.lat);
+                foreach (wptType pt in list1)
+                {
+                    Console.WriteLine("{0}, {1} - {2}", pt.lon, pt.lat, pt.time);
+                }
+
+                minLat = list1.ElementAt(0).lat;
+                maxLat = list1.ElementAt(list1.Count()).lat;
+                //Console.WriteLine(list1.ElementAt(0).time.ToString());
+                //Console.WriteLine("Сортировано по долготе:");
+                IEnumerable<wptType> list2 = ptList.OrderBy(pt => pt.lon);
+                foreach (wptType pt in list1)
+                {
+                    Console.WriteLine("{0}, {1} - {2}", pt.lon, pt.lat, pt.time);
+                }
+                minLon = list2.ElementAt(0).lon;
+                maxLon = list2.ElementAt(list2.Count()).lon;
+                //Console.WriteLine(list2.ElementAt(0).time.ToString());
+                Console.WriteLine("Минимальная широта - {0}/r Минимальная"
+                + "долгота - {1}/r Максимальная широта - {2}/r Максимальная долгота - {3}", minLat, minLon, maxLat, maxLon);
             }
             else
             {
