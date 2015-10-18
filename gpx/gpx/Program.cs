@@ -1,19 +1,29 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+using System.Windows.Forms;
 
 
 namespace gpx
 {
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Главная точка входа для приложения.
+        /// </summary>
+        [STAThread]
+        static void Main()
         {
-            gpxType gpxtype = new gpxType();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Form1());
+            
+         
+        }
+    }
+}
+/*
+           gpxType gpxtype = new gpxType();
 
             using (FileStream fs = new FileStream("1.gpx", FileMode.Open, FileAccess.Read, FileShare.Read))
             { 
@@ -99,6 +109,5 @@ namespace gpx
                 Console.WriteLine("file doesnt contain needed info");
             }
             Console.ReadLine();
-        }
-    }
-}
+
+ */

@@ -1,0 +1,9 @@
+E:\work\sla\gpx\gpx\gpx\obj\x86\Debug\ResolveAssemblyReference.cache
+E:\work\sla\gpx\gpx\gpx\obj\x86\Debug\gpx.Properties.Resources.resources
+E:\work\sla\gpx\gpx\gpx\obj\x86\Debug\GenerateResource.read.1.tlog
+E:\work\sla\gpx\gpx\gpx\obj\x86\Debug\GenerateResource.write.1.tlog
+E:\work\sla\gpx\gpx\gpx\bin\Debug\gpx.exe
+E:\work\sla\gpx\gpx\gpx\bin\Debug\gpx.pdb
+E:\work\sla\gpx\gpx\gpx\obj\x86\Debug\gpx.exe
+E:\work\sla\gpx\gpx\gpx\obj\x86\Debug\gpx.pdb
+E:\work\sla\gpx\gpx\gpx\obj\x86\Debug\gpx.Form1.resources
