@@ -5,3 +5,6 @@
 ---<trkpt (lat, lon)>
 ----<ele>
 ----<time>
+
+http://www.extremum.spb.ru/data1/extremum/ex.nsf/c7e156ee79528ea443257d89005b8e40/216fda77563012c744257d4e002ccf3a!OpenDocument
+http://www.extremum.spb.ru/data1/extremum/ex.nsf/88d57b4f394c050ec325773a004499cf/0f704275531fc22c44257d4c00359834!OpenDocument&TableRow=2.1#2.
