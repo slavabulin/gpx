@@ -8,3 +8,26 @@
 
 http://www.extremum.spb.ru/data1/extremum/ex.nsf/c7e156ee79528ea443257d89005b8e40/216fda77563012c744257d4e002ccf3a!OpenDocument
 http://www.extremum.spb.ru/data1/extremum/ex.nsf/88d57b4f394c050ec325773a004499cf/0f704275531fc22c44257d4c00359834!OpenDocument&TableRow=2.1#2.
+
+
+cc0000
+ff0000
+ff3300
+ff9933
+ffcc00
+ffff00
+ccff33
+99ff33
+009900
+009933
+
+500 - 0.138 - cc0000
+800 - 0.222 - ff0000
+1000 - 0.277 - ff3300
+1200 - 0.333 - ff9933
+1500 - 0.416 - ffcc00
+1700 - 0.472 - ffff00
+2000 - 0.555 - ccff33
+2500 - 0.694 - 99ff33
+3000 - 0.833 - 009900
+3500 - 0.972 - 009933

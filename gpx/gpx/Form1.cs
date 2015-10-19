@@ -23,9 +23,9 @@ namespace gpx
             InitializeComponent();
         }
 
-        static int[] ar_lat;
-        static int[] ar_lon;
-        decimal minLat, maxLat, minLon, maxLon;
+        decimal minLat, maxLat, minLon, maxLon, a, b;
+
+        trackSegment[] track;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -79,6 +79,8 @@ namespace gpx
                 maxLat = (Decimal)Degr2Rad(0);
                 maxLon = (Decimal)Degr2Rad(0);
 
+                
+                //вычисляем крайние точки трека
                 for (int y = 0; y < ptList.Count; y++)
                 {
 
@@ -103,28 +105,45 @@ namespace gpx
                     }
                 }
 
-                decimal a =(maxLat - minLat) / 5800; //кол-во градусов в пикселе
-                decimal b =(maxLon - minLon) / 600;
+                //a = (maxLat - minLat) / 5800; //кол-во градусов в пикселе по горизонтали
+                //b = (maxLon - minLon) / 600; //кол-во градусов в пикселе по вертикали
 
-                ar_lat = new int[ptList.Count];
-                ar_lon = new int[ptList.Count];
-
-                for (int t = 0; t < ptList.Count; t++)
+                a = (maxLat - minLat) / (base.Size.Height* 10);
+                b = (maxLon - minLon) / base.Size.Width;
+                
+                //------------------------------------------------------------
+                track = new trackSegment[ptList.Count - 1];
+                for(int t=0; t<ptList.Count-1;t++)
                 {
-                    ar_lat[t] = Decimal.ToInt32(Decimal.Round((ptList.ElementAt(t).lat - minLat) / a, 0));
-                    ar_lon[t] = Decimal.ToInt32(Decimal.Round((ptList.ElementAt(t).lon - minLon) / b, 0));
-                }
+                    track[t] = new trackSegment();
 
-                trkSeg[] track = new trkSeg[ptList.Count - 1];
-                double dt;
-                for (int t = 0; t < ptList.Count - 1; t++)
-                {
-                    track[t] = new trkSeg();
-                    track[t].start = new Point(ar_lon[t], 600 - ar_lat[t]);
-                    track[t].end = new Point(ar_lon[t + 1], 600 - ar_lat[t + 1]);
-                    track[t].dt = (ptList.ElementAt(t + 1).time - ptList.ElementAt(t).time).TotalSeconds;
-                    //track[t].velocity = 
+                    track[t].start = new mapPoint();
+                    track[t].start.Lat = ptList.ElementAt(t).lat;
+                    track[t].start.Lon = ptList.ElementAt(t).lon;
+                    track[t].start.time = ptList.ElementAt(t).time;
+
+                    track[t].end = new mapPoint();
+                    track[t].end.Lat = ptList.ElementAt(t+1).lat;
+                    track[t].end.Lon = ptList.ElementAt(t+1).lon;
+                    track[t].end.time = ptList.ElementAt(t+1).time;
+
+                    track[t].distance = CountDistance(track[t]);
+                    try
+                    {
+                        track[t].speed = CountSpeed(track[t]);
+                    }
+                    catch(Exception ex)
+                    {
+                        track[t].speed = 0;
+                    }
+
+                    track[t].start.Y = Decimal.ToInt32(Decimal.Round((ptList.ElementAt(t).lat - minLat) / a, 0));
+                    track[t].start.X = Decimal.ToInt32(Decimal.Round((ptList.ElementAt(t).lon - minLon) / b, 0));
+                    track[t].end.Y = Decimal.ToInt32(Decimal.Round((ptList.ElementAt(t+1).lat - minLat) / a, 0));
+                    track[t].end.X = Decimal.ToInt32(Decimal.Round((ptList.ElementAt(t+1).lon - minLon) / b, 0));
                 }
+                //------------------------------------------------------------
+
             }
             else
             {
@@ -141,29 +160,101 @@ namespace gpx
             return Math.PI * Decimal.ToDouble(degr) / 180;
         }
 
-        public decimal dist(Point start, Point end)
+        public decimal CountSpeed(trackSegment tracksegment)
         {
-            if (start == null || end == null) return Decimal.Zero;
-           
-                /*
-                    function distance($lat1,$lng1,$lat2,$lng2) 
-     { 
-         // Convert degrees to radians. 
-        $lat1=deg2rad($lat1); 
-        $lng1=deg2rad($lng1); 
-        $lat2=deg2rad($lat2); 
-        $lng2=deg2rad($lng2); 
-     
-        // Calculate delta longitude and latitude. 
-        $delta_lat=($lat2 - $lat1); 
-        $delta_lng=($lng2 - $lng1); 
-     
-        return round( 6378137 * acos( cos( $lat1 ) * cos( $lat2 ) * cos( $lng1 - $lng2 ) + sin( $lat1 ) * sin( $lat2 ) ) ); 
-     }
-                 */
-            return 0;
+            TimeSpan timespan;
+            decimal timespan_dec, speed;
+            timespan = tracksegment.start.time - tracksegment.end.time;
+
+            try
+            {
+                timespan_dec = (Decimal)timespan.TotalSeconds;
+                timespan_dec = Decimal.Round(timespan_dec, 0);
+                speed = tracksegment.distance / timespan_dec;
+                if (speed <= 0)
+                {
+                    return speed * (-1);
+                }
+                else
+                    return speed;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
-        
+
+        public int CountDistance(trackSegment tracksegment)
+        {
+            if (tracksegment == null) return 0;
+
+            decimal delta_lon = tracksegment.start.Lon - tracksegment.end.Lon;
+            decimal delta_lat = tracksegment.start.Lat - tracksegment.end.Lat;
+            decimal dist_in_decimal;
+            double cos_lat1, cos_lat2, cos_lat1_lat2, sin_lat1, sin_lat2, cos_delta_lon1_lon2, dist_in_double;
+
+            //return  Decimal.ToInt32((Decimal)(6372797.560856 * Math.Sqrt(Decimal.ToDouble(delta_lat * delta_lat) +
+            //    Math.Cos(Decimal.ToDouble(tracksegment.start.Lat + tracksegment.end.Lat)) *
+            //    Math.Cos(Decimal.ToDouble(tracksegment.start.Lat + tracksegment.end.Lat)) *
+            //    Decimal.ToDouble(delta_lon * delta_lon))));
+           
+
+            cos_lat1 = Math.Cos(Decimal.ToDouble(tracksegment.start.Lat));
+            cos_lat2 = Math.Cos(Decimal.ToDouble(tracksegment.end.Lat));
+            cos_lat1_lat2 = Math.Cos(Decimal.ToDouble(tracksegment.start.Lat - tracksegment.end.Lat));
+            sin_lat1 = Math.Sin(Decimal.ToDouble(tracksegment.start.Lat));
+            sin_lat2 = Math.Sin(Decimal.ToDouble(tracksegment.end.Lat));
+            cos_delta_lon1_lon2 = Math.Cos(Decimal.ToDouble(tracksegment.start.Lon - tracksegment.end.Lon));
+
+            dist_in_double = 6378137 * Math.Acos(cos_lat1 * cos_lat2 * cos_delta_lon1_lon2 + sin_lat1 * sin_lat2);
+
+            try
+            {
+                dist_in_decimal = (decimal)dist_in_double;
+                return Decimal.ToInt32(Decimal.Round(dist_in_decimal, 0));
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            #region
+            /*
+             * 
+             static inline CLLocationDistance GeodesicDistance(CLLocationCoordinate2D a, CLLocationCoordinate2D b) {
+static const CLLocationDistance EarthRadiusInMeters = 6372797.560856;
+static const double DegreeesToRad = 0.017453292519943295769236907684886;
+
+CLLocationDegrees dtheta = (a.latitude - b.latitude) * DegreeesToRad;
+CLLocationDegrees dlambda = (a.longitude - b.longitude) * DegreeesToRad;
+CLLocationDegrees mean_t = (a.latitude + b.latitude) * DegreeesToRad / 2.0;
+CLLocationDegrees cos_meant = cos(mean_t);
+
+return EarthRadiusInMeters * sqrt(dtheta * dtheta + cos_meant * cos_meant * dlambda * dlambda);
+}
+             * 
+             * 
+             * 
+             * 
+             * 
+                function distance($lat1,$lng1,$lat2,$lng2) 
+ { 
+     // Convert degrees to radians. 
+    $lat1=deg2rad($lat1); 
+    $lng1=deg2rad($lng1); 
+    $lat2=deg2rad($lat2); 
+    $lng2=deg2rad($lng2); 
+     
+    // Calculate delta longitude and latitude. 
+    $delta_lat=($lat2 - $lat1); 
+    $delta_lng=($lng2 - $lng1); 
+     
+    return round( 6378137 * acos( cos( $lat1 ) * cos( $lat2 ) * cos( $lng1 - $lng2 ) + sin( $lat1 ) * sin( $lat2 ) ) ); 
+ }
+             */
+
+            #endregion
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             // If there is an image and it has a location, 
@@ -174,28 +265,92 @@ namespace gpx
             DrawTrack();
         }
 
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            base.OnResizeEnd(e);
+            Form1_Load(this,e);
+        }
 
         private void DrawTrack()
-        {
-            for (int t = 0; t < ar_lat.Length - 1; t++)
-            {
-                using (System.Drawing.Pen myPen = new System.Drawing.Pen(System.Drawing.Color.Red))
+        {            
+            System.Drawing.Color color = System.Drawing.Color.Red;
+
+            using (System.Drawing.Pen myPen = new System.Drawing.Pen(color))
                 {
-                    using (System.Drawing.Graphics formGraphics = this.CreateGraphics())
+                using (System.Drawing.Graphics formGraphics = this.CreateGraphics())
+                {
+                   // formGraphics.Clear(Color.Transparent);
+
+                    for (int t = 0; t < track.Length - 1; t++)
                     {
-                        formGraphics.DrawLine(myPen, new Point(ar_lon[t], 600 - ar_lat[t]), new Point(ar_lon[t + 1], 600 - ar_lat[t + 1]));
+                        if (track[t].speed > (Decimal)0.138)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78CC0000);
+                        }
+                        if (track[t].speed > (Decimal)0.222)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78FF0000);
+                        }
+                        if (track[t].speed > (Decimal)0.277)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78FF3300);
+                        }
+                        if (track[t].speed > (Decimal)0.333)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78FF9933);
+                        }
+                        if (track[t].speed > (Decimal)0.416)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78FFCC00);
+                        }
+                        if (track[t].speed > (Decimal)0.472)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78FFFF00);
+                        }
+                        if (track[t].speed > (Decimal)0.555)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78CCFF33);
+                        }
+                        if (track[t].speed > (Decimal)0.694)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x7899FF33);
+                        }
+                        if (track[t].speed > (Decimal)0.833)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78009900);
+                        }
+                        if (track[t].speed > (Decimal)0.972)
+                        {
+                            myPen.Color = System.Drawing.Color.FromArgb(0x78009933);
+                        }
+                        if (track[t].speed > (Decimal)2.0)
+                        {
+                            myPen.Color = System.Drawing.Color.Black;
+                        }
+
+                        formGraphics.DrawLine(myPen, new Point(track[t].start.X, base.Size.Height - track[t].start.Y),
+                            new Point(track[t].end.X, base.Size.Height - track[t].end.Y));
                     }
                 }
             }
         }
     }
 
-    internal class trkSeg
+
+    public class mapPoint
     {
-        internal Point start;
-        internal Point end;
-        internal Color color;
-        internal double dt;
-        internal decimal velocity;
+        public decimal Lon;
+        public decimal Lat;
+        public int X;
+        public int Y;
+        public DateTime time;
+    }
+
+    public class trackSegment
+    {
+        public  mapPoint start;
+        public mapPoint end;
+        public int distance;// расстояние в метрах, округленных до целых
+        public decimal speed;// скорость на отрезке в м/с округленный до 3 знака после запятой
     }
 }
