@@ -31,7 +31,7 @@ namespace gpx
         {
             //----------------------------------------------------------------------
             gpxType gpxtype = new gpxType();
-            
+            int tracklenght = 0;
 
             using (FileStream fs = new FileStream("1.gpx", FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -116,18 +116,31 @@ namespace gpx
                 for(int t=0; t<ptList.Count-1;t++)
                 {
                     track[t] = new trackSegment();
-
                     track[t].start = new mapPoint();
+                    track[t].end = new mapPoint();
+
+                    //-------------------------------
+                    track[t].start.Lat = (Decimal)Degr2Rad((Decimal)77.1539);
+                    track[t].start.Lon = (Decimal)Degr2Rad((Decimal)120.398);
+                    track[t].end.Lat = (Decimal)Degr2Rad((Decimal)77.1804);
+                    track[t].end.Lon = (Decimal)Degr2Rad((Decimal)129.55);
+                    //  225883
+                    //-------------------------------
+
+                    
                     track[t].start.Lat = ptList.ElementAt(t).lat;
                     track[t].start.Lon = ptList.ElementAt(t).lon;
                     track[t].start.time = ptList.ElementAt(t).time;
 
-                    track[t].end = new mapPoint();
+                    
                     track[t].end.Lat = ptList.ElementAt(t+1).lat;
                     track[t].end.Lon = ptList.ElementAt(t+1).lon;
                     track[t].end.time = ptList.ElementAt(t+1).time;
 
                     track[t].distance = CountDistance(track[t]);
+
+                    //tracklenght = tracklenght + track[t].distance;
+
                     try
                     {
                         track[t].speed = CountSpeed(track[t]);
@@ -191,7 +204,7 @@ namespace gpx
             decimal delta_lon = tracksegment.start.Lon - tracksegment.end.Lon;
             decimal delta_lat = tracksegment.start.Lat - tracksegment.end.Lat;
             decimal dist_in_decimal;
-            double cos_lat1, cos_lat2, cos_lat1_lat2, sin_lat1, sin_lat2, cos_delta_lon1_lon2, dist_in_double;
+            double cos_lat1, cos_lat2, cos_lat1_lat2, sin_lat1, sin_lat2, cos_delta_lon1_lon2, dist_in_double, cos_lon1,cos_lon2;
 
             //return  Decimal.ToInt32((Decimal)(6372797.560856 * Math.Sqrt(Decimal.ToDouble(delta_lat * delta_lat) +
             //    Math.Cos(Decimal.ToDouble(tracksegment.start.Lat + tracksegment.end.Lat)) *
@@ -205,9 +218,12 @@ namespace gpx
             sin_lat1 = Math.Sin(Decimal.ToDouble(tracksegment.start.Lat));
             sin_lat2 = Math.Sin(Decimal.ToDouble(tracksegment.end.Lat));
             cos_delta_lon1_lon2 = Math.Cos(Decimal.ToDouble(tracksegment.start.Lon - tracksegment.end.Lon));
+            cos_lon1 = Math.Cos(Decimal.ToDouble(tracksegment.start.Lon));
+            cos_lon2 = Math.Cos(Decimal.ToDouble(tracksegment.end.Lon));
 
             dist_in_double = 6378137 * Math.Acos(cos_lat1 * cos_lat2 * cos_delta_lon1_lon2 + sin_lat1 * sin_lat2);
-
+            //double tmp = sin_lat1 * sin_lat2 + cos_lon1 * cos_lon2 * cos_delta_lon1_lon2;
+            //dist_in_double = 6378137 * Math.Acos(tmp);
             try
             {
                 dist_in_decimal = (decimal)dist_in_double;
@@ -219,6 +235,24 @@ namespace gpx
             }
             #region
             /*
+            public double distanceTo(GeoPoint gp1, GeoPoint gp2) {  
+        if (gp!=null){  
+            int radius = 6371; // Километры 
+            double dLat = Math.toRadians(gp2.latitude - gp1.latitude); 
+            double dLong = Math.toRadians(gp2.longitude - gp1.longitude); 
+            double lat1 = Math.toRadians(gp1.latitude); 
+            double lat2 = Math.toRadians(gp2.latitude); 
+
+            double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLong / 2) * Math.sin(dLong / 2); 
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+            return c * R; 
+             * 
+             * --------------------------------------------------------------------------------------------------------
+             * 
+             R*arccos( sin(д1)*sin(д2) + cos(д1)*cos(д2)*cos(ш2-ш1) )
+             
+             * 
+             * --------------------------------------------------------------------------------------------------------
              * 
              static inline CLLocationDistance GeodesicDistance(CLLocationCoordinate2D a, CLLocationCoordinate2D b) {
 static const CLLocationDistance EarthRadiusInMeters = 6372797.560856;
@@ -233,7 +267,7 @@ return EarthRadiusInMeters * sqrt(dtheta * dtheta + cos_meant * cos_meant * dlam
 }
              * 
              * 
-             * 
+             * --------------------------------------------------------------------------------------------------------* 
              * 
              * 
                 function distance($lat1,$lng1,$lat2,$lng2) 
