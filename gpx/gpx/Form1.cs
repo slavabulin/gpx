@@ -279,47 +279,47 @@ return EarthRadiusInMeters * sqrt(dtheta * dtheta + cos_meant * cos_meant * dlam
                 {
                 using (System.Drawing.Graphics formGraphics = this.CreateGraphics())
                 {
-                   // formGraphics.Clear(Color.Transparent);
+                    formGraphics.Clear(Color.WhiteSmoke);
 
                     for (int t = 0; t < track.Length - 1; t++)
                     {
-                        if (track[t].speed > (Decimal)0.138)
+                        if (track[t].speed > (Decimal)0.138) //больше 500 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78CC0000);
                         }
-                        if (track[t].speed > (Decimal)0.222)
+                        if (track[t].speed > (Decimal)0.222) //больше 800 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78FF0000);
                         }
-                        if (track[t].speed > (Decimal)0.277)
+                        if (track[t].speed > (Decimal)0.277) //больше 1000 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78FF3300);
                         }
-                        if (track[t].speed > (Decimal)0.333)
+                        if (track[t].speed > (Decimal)0.333) //больше 1200 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78FF9933);
                         }
-                        if (track[t].speed > (Decimal)0.416)
+                        if (track[t].speed > (Decimal)0.416) //больше 1500 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78FFCC00);
                         }
-                        if (track[t].speed > (Decimal)0.472)
+                        if (track[t].speed > (Decimal)0.472) //больше 1700 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78FFFF00);
                         }
-                        if (track[t].speed > (Decimal)0.555)
+                        if (track[t].speed > (Decimal)0.555) //больше 2000 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78CCFF33);
                         }
-                        if (track[t].speed > (Decimal)0.694)
+                        if (track[t].speed > (Decimal)0.694) //больше 2500 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x7899FF33);
                         }
-                        if (track[t].speed > (Decimal)0.833)
+                        if (track[t].speed > (Decimal)0.833) //больше 3000 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78009900);
                         }
-                        if (track[t].speed > (Decimal)0.972)
+                        if (track[t].speed > (Decimal)0.972) //больше 3500 м/ч
                         {
                             myPen.Color = System.Drawing.Color.FromArgb(0x78009933);
                         }
